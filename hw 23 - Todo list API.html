@@ -1,0 +1,129 @@
+<body>
+    <script>
+
+        class Todo {
+            baseUrl = 'https://todo.hillel.it';
+            token = localStorage.getItem('access_token');
+            list = [];
+            constructor() {
+                this.getTodosList()
+            }
+            
+
+            async login(name, email) {
+                const response = await fetch(`${this.baseUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        value: name + email
+                    })
+                });
+
+                const { access_token } = await response.json();
+                this.token = access_token;
+                localStorage.setItem('access_token', this.token)
+            }
+
+            async getTodosList() {
+                const response = await fetch(`${this.baseUrl}/todo`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    
+
+                });
+
+                const list = await response.json();
+
+                this.list = list;
+
+                console.log(this.list);
+            }
+
+            async add(text, priority = 1) {
+                const payLoad = {
+                    value: text,
+                    priority
+                };
+
+                const response = await fetch(`${this.baseUrl}/todo`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(payLoad)
+
+                });
+
+                const note = await response.json();
+                this.list.push(note);
+
+            }
+
+            async removeById (id) {
+                const response = await fetch(`${this.baseUrl}/todo/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    
+
+                });
+            }
+
+           async editById(id, data) {
+            const response = await fetch(`${this.baseUrl}/todo/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(data)
+
+                });
+            }
+
+            async toggleById(id) {
+                const response = await fetch(`${this.baseUrl}/todo/${id}/toggle`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+
+                });
+            } 
+ 
+        }
+
+
+
+        
+        const todo = new Todo();
+
+
+
+        if (!localStorage.getItem('access_token')) {
+            const name = prompt('Enter your name', 'Yevhen');
+            const email = prompt('Enter your email', 'exp@gmail.com');
+            todo.login(name, email);
+        }
+
+        //todo.add('New note', 1);
+        //todo.getTodosList();
+        
+        //todo.removeById(7163);
+        
+
+        //todo.editById(7164, {value: 'buy meat', priority: 1})
+        
+        todo.toggleById(7164);
+       //todo.getTodosList();
+
+    </script>
+</body>
